@@ -108,7 +108,13 @@ S6-S8 are unassigned.
 3. `mp3_player` (core 1) opens the current track and loops: read a command, refill the input buffer, find a frame sync word, decode one frame, scale by volume, and write PCM to I2S.
 4. When a track ends or the user skips, the decoder is recreated and the next track starts.
 
-<!-- TODO: add flowchart image here -->
+**Overall program flow**
+
+![flow1](images/flow1.png)
+
+**MP3 playing flow**
+
+![flow2](images/flow2.png)
 
 
 ## Known issues
