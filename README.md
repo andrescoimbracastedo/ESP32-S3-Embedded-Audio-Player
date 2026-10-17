@@ -124,6 +124,7 @@ S6-S8 are unassigned.
 - [ ] Fix the track-change repeat and the 5th-song crash
 - [ ] Read sample rate and channel count from the frame header and reconfigure I2S
 - [ ] Split `mp3_player` into smaller helper functions
+- [ ] Skip ID3v2 tags
 - [ ] OLED display (track name, volume, play state)
 - [ ] Add bluetooth audio
 - [ ] Add wifi file transfering.
@@ -132,5 +133,6 @@ S6-S8 are unassigned.
 
 I used a logic analyzer to check the I2S signals (BCLK, LRC, DOUT).
 
-<!-- TODO: add logic analyzer screenshots with a one-line caption each -->
+The purpose originally was when at one point there was no sound comming through. Here I confirmed that sound was indeed coming through. It was just at the wrong frequency.
+
 ![square waves](images/square.png)
