@@ -1,6 +1,6 @@
-# ESP32-S3-Embedded-Audio-Player
+# ESP32-S3 Embedded Audio Player
 
-A WIP hardware MP3 player built on the ESP32-S3. It reads MP3 files from a microSD card, decodes them with the Helix MP3 decoder, and plays them through a PCM5102 I2S DAC. A button matrix controls volume, pause, and track skipping.
+A work-in-progress MP3 player built on the ESP32-S3. It reads MP3 files from a microSD card, decodes them using the Helix MP3 decoder, and outputs audio through a PCM5102 DAC over I2S. A physical button matrix handles volume, playback, and track navigation.
 
 **Status: work in progress.** See [Known issues](#known-issues).
 
@@ -101,12 +101,14 @@ A WIP hardware MP3 player built on the ESP32-S3. It reads MP3 files from a micro
 
 S6-S8 are unassigned.
 
+
 ## How it works
 
-1. `app_main` mounts the SD card, scans the root directory for `.mp3` files (up to 120), initializes I2S, and sets up the button matrix.
-2. `matrix_scanner_task` (core 0) drives each row low, reads the columns, and reacts on key-state changes. Volume is changed directly. Track and pause commands go into a single-slot `pending_system_command`.
-3. `mp3_player` (core 1) opens the current track and loops: read a command, refill the input buffer, find a frame sync word, decode one frame, scale by volume, and write PCM to I2S.
-4. When a track ends or the user skips, the decoder is recreated and the next track starts.
+1. `app_main` mounts the SD card, scans its root directory for MP3 files (up to 120), initializes I2S, and sets up the button matrix.
+2. `matrix_scanner_task` runs on core 0. It scans the button matrix and handles button presses. Volume changes are applied directly, while track skips and pause/resume are passed to the audio task through `pending_system_command`.
+3. `mp3_player` runs on core 1. It reads the current track, decodes MP3 frames, applies volume scaling, and sends PCM audio to I2S.
+4. When a track finishes or the user skips to another track, the player resets the decoder and starts the next track.
+
 
 **Overall program flow**
 
@@ -117,13 +119,15 @@ S6-S8 are unassigned.
 ![flow2](images/flow2.png)
 
 
-## Known issues
 
-- **Repeated audio on track change.** A short fragment of the previous buffer replays when switching tracks manually. Likely stale data in the I2S DMA buffers after the channel is disabled and re-enabled. Under investigation.
-- **Crash on the 5th song.** Playback crashes when the fifth track plays. Not yet diagnosed. It did not happen on the original ESP32.
-- **44.1 kHz stereo only.** The I2S clock is fixed. Files with other sample rates or mono audio will play at the wrong speed or pitch.
-- **No ID3v2 skipping.** Tags are handled only by the sync-word search.
-- **Limits.** Root directory only, 120 tracks max, filenames up to 63 characters.
+## Known Issues
+
+- **Audio repeats briefly when changing tracks.** A short fragment of the previous track plays after switching tracks. I suspect stale audio in the I2S DMA buffers, but I haven't confirmed the cause.
+- **Crash on the fifth song.** Playback crashes when the fifth track starts. The cause is still unknown. I didn't observe this on the original ESP32.
+- **Fixed sample rate.** I2S is configured for 44.1 kHz stereo, so files with different sample rates or channel configurations aren't handled correctly.
+- **ID3v2 tags aren't explicitly skipped.** The current implementation searches for an MP3 sync word instead.
+- **Playback limitations.** Only files in the SD card's root directory are scanned. The player supports up to 120 tracks, with filenames limited to 63 characters.
+
 
 ## Roadmap
 
@@ -132,13 +136,11 @@ S6-S8 are unassigned.
 - [ ] Split `mp3_player` into smaller helper functions
 - [ ] Skip ID3v2 tags
 - [ ] OLED display (track name, volume, play state)
-- [ ] Add bluetooth audio
-- [ ] Add wifi file transfering.
+- [ ] Add bluetooth audio streaming
+- [ ] Add wifi file transfer.
 
 ## Debugging
 
-I used a logic analyzer to check the I2S signals (BCLK, LRC, DOUT).
-
-The purpose originally was when at one point there was no sound comming through. Here I confirmed that sound was indeed coming through. It was just at the wrong frequency.
+I used a logic analyzer to inspect the I2S signals (BCLK, LRCK, and data out) when audio playback produced no audible sound. The signals were present, so the problem wasn't a complete lack of output. Further investigation showed that the audio was being played at the wrong frequency.
 
 ![square waves](images/square.png)
