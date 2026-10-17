@@ -1,11 +1,28 @@
 # ESP32-S3-Embedded-Audio-Player
 
-A hardware MP3 player built on the ESP32-S3. It reads MP3 files from a microSD card, decodes them with the Helix MP3 decoder, and plays them through a PCM5102 I2S DAC. A button matrix controls volume, pause, and track skipping.
+A WIP hardware MP3 player built on the ESP32-S3. It reads MP3 files from a microSD card, decodes them with the Helix MP3 decoder, and plays them through a PCM5102 I2S DAC. A button matrix controls volume, pause, and track skipping.
 
 **Status: work in progress.** See [Known issues](#known-issues).
 
-<!-- TODO: add demo video link or embedded GIF -->
-<!-- TODO: add photo of the breadboard -->
+**Video**
+
+![video demo](video/demo.mp4)
+
+**Photo 1**
+
+![photo 1](images/1.jpg)
+
+**Photo 2**
+
+![photo 2](images/2.jpg)
+
+**Photo 3**
+
+![photo 3](images/3.jpg)
+
+**Photo 4**
+
+![photo 4](images/4.jpg)
 
 ## Features
 
@@ -93,21 +110,6 @@ S6-S8 are unassigned.
 
 <!-- TODO: add flowchart image here -->
 
-## Building
-
-Built with ESP-IDF `<version>`.
-
-```
-idf.py set-target esp32s3
-idf.py build flash monitor
-```
-
-Requirements:
-
-- PSRAM enabled in `menuconfig`
-- Helix MP3 decoder available as a component (`mp3dec.h`) <!-- TODO: say where it comes from -->
-
-Put your `.mp3` files in the root of a FAT-formatted SD card.
 
 ## Known issues
 
@@ -123,10 +125,12 @@ Put your `.mp3` files in the root of a FAT-formatted SD card.
 - [ ] Read sample rate and channel count from the frame header and reconfigure I2S
 - [ ] Split `mp3_player` into smaller helper functions
 - [ ] OLED display (track name, volume, play state)
-- [ ] Skip ID3v2 tags
+- [ ] Add bluetooth audio
+- [ ] Add wifi file transfering.
 
 ## Debugging
 
 I used a logic analyzer to check the I2S signals (BCLK, LRC, DOUT).
 
 <!-- TODO: add logic analyzer screenshots with a one-line caption each -->
+![square waves](images/square.png)
